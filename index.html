@@ -1,1322 +1,297 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#ff5aa5" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="家計簿" />
-  <title>家計簿</title>
-  <style>
-    :root{
-      --bg1:#fff1f7;
-      --bg2:#f6f1ff;
-      --card:#ffffffcc;
-      --border:rgba(0,0,0,.08);
-      --text:#2a2a2a;
-      --muted:#6b6b6b;
-      --pink1:#ff7eb3;
-      --pink2:#ff4d9d;
-      --purple1:#7b7cff;
-      --purple2:#5f61ff;
-      --shadow: 0 12px 28px rgba(0,0,0,.10);
-      --radius: 18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif;
-      color:var(--text);
-      background: radial-gradient(1200px 700px at 15% 10%, var(--bg1), transparent 70%),
-                  radial-gradient(1200px 700px at 85% 0%, var(--bg2), transparent 70%),
-                  linear-gradient(180deg, #fff, #fff);
-      min-height:100vh;
-      padding-bottom: 108px; /* bottom nav space */
-    }
-    .wrap{
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 18px 14px 28px;
-    }
-    .header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:12px;
-    }
-    .title{
-      font-size:20px;
-      font-weight:800;
-      letter-spacing:.02em;
-    }
-    .pill{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 12px;
-      border-radius:999px;
-      background: rgba(255,255,255,.75);
-      border:1px solid var(--border);
-      box-shadow: 0 6px 16px rgba(0,0,0,.06);
-      backdrop-filter: blur(10px);
-    }
-    .pill button{
-      border:none;
-      background:transparent;
-      font-weight:800;
-      padding:6px 10px;
-      border-radius:999px;
-      cursor:pointer;
-    }
-    .pill button:active{transform:scale(.98)}
-    .pill .ym{
-      min-width: 108px;
-      text-align:center;
-      font-weight:900;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#ff5aa5" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="家計簿" />
+<title>家計簿</title>
 
-    .grid{
-      display:grid;
-      gap:12px;
-    }
-    .card{
-      background: var(--card);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      overflow:hidden;
-    }
-    .card .card-hd{
-      padding:12px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      border-bottom:1px solid rgba(0,0,0,.06);
-      background: rgba(255,255,255,.55);
-    }
-    .card .card-hd h2{
-      margin:0;
-      font-size:14px;
-      font-weight:900;
-      color:#333;
-    }
-    .card .card-bd{ padding: 12px 14px; }
+<style>
+:root{
+  --bg1:#fff1f7;
+  --bg2:#f6f1ff;
+  --card:#ffffffcc;
+  --border:rgba(0,0,0,.08);
+  --text:#2a2a2a;
+  --muted:#6b6b6b;
+  --pink1:#ff7eb3;
+  --pink2:#ff4d9d;
+  --purple1:#7b7cff;
+  --purple2:#5f61ff;
+  --shadow: 0 12px 28px rgba(0,0,0,.10);
+  --radius: 18px;
+}
 
-    .row{ display:flex; gap:10px; align-items:center; }
-    .row.stack{ flex-direction:column; align-items:stretch; }
-    .muted{ color: var(--muted); font-size:12px; }
-    .small{ font-size:12px; }
+*{box-sizing:border-box}
 
-    label{
-      font-size:12px;
-      font-weight:800;
-      color:#444;
-      display:block;
-      margin-bottom:6px;
-    }
-    input, select, textarea{
-      width:100%;
-      height: 42px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border:1px solid rgba(0,0,0,.10);
-      background: rgba(255,255,255,.90);
-      outline:none;
-      font-size:14px;
-    }
-    textarea{ height: 60px; resize: vertical; padding-top:10px; }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(255,77,157,.55);
-      box-shadow: 0 0 0 4px rgba(255,77,157,.12);
-    }
+body{
+  margin:0;
+  font-family: system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+  background:
+    radial-gradient(1200px 700px at 15% 10%, var(--bg1), transparent 70%),
+    radial-gradient(1200px 700px at 85% 0%, var(--bg2), transparent 70%);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:110px;
+}
 
-    .btn{
-      height: 46px;
-      border:none;
-      border-radius: 999px;
-      font-weight:900;
-      font-size: 14px;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      padding: 0 14px;
-      user-select:none;
-    }
-    .btn:active{ transform: translateY(1px) scale(.99); }
-    .btn.pink{
-      color:#fff;
-      background: linear-gradient(135deg, var(--pink1), var(--pink2));
-      box-shadow: 0 12px 24px rgba(255,77,157,.25);
-    }
-    .btn.purple{
-      color:#fff;
-      background: linear-gradient(135deg, var(--purple1), var(--purple2));
-      box-shadow: 0 12px 24px rgba(95,97,255,.22);
-    }
-    .btn.ghost{
-      background: rgba(255,255,255,.70);
-      border:1px solid var(--border);
-      color:#333;
-    }
-    .btn.red{
-      background: #ffeded;
-      border:1px solid rgba(255,0,0,.18);
-      color:#b10000;
-    }
-    .btn.sm{ height: 38px; font-size: 13px; padding:0 12px; }
+.wrap{
+  max-width:520px;
+  margin:0 auto;
+  padding:14px;
+}
 
-    .two{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    .three{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
-    }
-    .hr{
-      height:1px;
-      background: rgba(0,0,0,.08);
-      margin: 10px 0;
-    }
+/* ===== ヘッダー追従 ===== */
+.header{
+  position:sticky;
+  top:0;
+  z-index:998;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:10px 0;
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
 
-    /* Lists */
-    .list{ display:grid; gap:10px; }
-    .item{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 12px;
-      border-radius: 16px;
-      border:1px solid rgba(0,0,0,.08);
-      background: rgba(255,255,255,.78);
-    }
-    .item .left{ display:flex; align-items:center; gap:10px; min-width:0; }
-    .emoji{ font-size:22px; width:28px; text-align:center; }
-    .item .name{
-      font-weight:900;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .item .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
-    .item .right{ display:flex; align-items:center; gap:8px; }
-    .yen{ font-weight:900; }
-    .badge{
-      font-size:11px;
-      font-weight:900;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(0,0,0,.08);
-      background: rgba(255,255,255,.70);
-      color:#333;
-    }
-    .badge.pink{ background: rgba(255,77,157,.10); border-color: rgba(255,77,157,.20); }
-    .badge.purple{ background: rgba(95,97,255,.10); border-color: rgba(95,97,255,.18); }
+.title{
+  font-weight:900;
+  font-size:20px;
+}
 
-    /* Chart area */
-    .chart-wrap{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-      align-items:center;
-      justify-items:center;
-    }
-    .chart{
-      width: 260px;
-      max-width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 18px;
-      background: rgba(255,255,255,.75);
-      border:1px solid rgba(0,0,0,.08);
-      box-shadow: 0 10px 22px rgba(0,0,0,.08);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 10px;
-    }
-    .legend{
-      width:100%;
-      display:grid;
-      gap:6px;
-    }
-    .leg-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.65);
-      border:1px solid rgba(0,0,0,.06);
-    }
-    .dot{
-      width:10px;height:10px;border-radius:99px;
-      border:1px solid rgba(0,0,0,.10);
-    }
-    .leg-left{ display:flex; align-items:center; gap:8px; min-width:0; }
-    .leg-name{ font-weight:900; font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .leg-val{ font-weight:900; font-size: 13px; }
+.pill{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  background:rgba(255,255,255,.8);
+  border-radius:999px;
+  padding:6px 10px;
+  border:1px solid var(--border);
+}
 
-    /* Bottom fixed nav */
-    .bottom-nav{
-      position: fixed;
-      left:0; right:0; bottom:0;
-      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-      background: rgba(255,255,255,.88);
-      border-top:1px solid rgba(0,0,0,.08);
-      backdrop-filter: blur(12px);
-      z-index: 999;
-    }
-    .bottom-nav .inner{
-      max-width: 520px;
-      margin: 0 auto;
-      display:flex;
-      gap:12px;
-    }
-    .nav-btn{
-      flex:1;
-      height: 54px;
-      border:none;
-      border-radius: 28px;
-      font-weight: 900;
-      font-size: 15px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-    }
-    .nav-btn.add{
-      background: linear-gradient(135deg, var(--pink1), var(--pink2));
-      box-shadow: 0 14px 26px rgba(255,77,157,.26);
-      color:#fff;
-    }
-    .nav-btn.manage{
-      background: linear-gradient(135deg, var(--purple1), var(--purple2));
-      box-shadow: 0 14px 26px rgba(95,97,255,.22);
-      color:#fff;
-    }
-    .nav-btn:active{ transform: translateY(1px) scale(.99); }
-    .nav-btn.active{
-      outline: 3px solid rgba(0,0,0,.08);
-    }
+.pill button{
+  background:none;
+  border:none;
+  font-weight:800;
+}
 
-    .tabs{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .tab{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(0,0,0,.08);
-      background: rgba(255,255,255,.70);
-      font-weight:900;
-      cursor:pointer;
-      user-select:none;
-    }
-    .tab.active{
-      background: rgba(255,77,157,.12);
-      border-color: rgba(255,77,157,.25);
-    }
+.ym{
+  min-width:100px;
+  text-align:center;
+  font-weight:900;
+}
 
-    .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 86px;
-      transform: translateX(-50%);
-      background: rgba(40,40,40,.92);
-      color:#fff;
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 13px;
-      z-index: 1000;
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .2s ease, transform .2s ease;
-    }
-    .toast.show{
-      opacity:1;
-      transform: translateX(-50%) translateY(-6px);
-    }
+/* ===== カード ===== */
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  margin-top:14px;
+  overflow:hidden;
+}
 
-    .footer-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:space-between;
-      align-items:center;
-    }
+.card-hd{
+  padding:12px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(255,255,255,.6);
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
 
-    @media (max-width: 420px){
-      .chart{ width: 240px; }
-    }
-  </style>
+.card-bd{ padding:14px; }
+
+.muted{ color:var(--muted); font-size:12px; }
+
+/* ===== 入力（ズレ完全修正） ===== */
+label{
+  font-size:12px;
+  font-weight:800;
+  display:block;
+  margin-bottom:6px;
+}
+
+input,select{
+  width:100%;
+  height:44px;
+  padding:0 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.1);
+  background:rgba(255,255,255,.9);
+  font-size:14px;
+  line-height:44px;
+  vertical-align:middle;
+}
+
+input[type="number"]{
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+textarea{
+  width:100%;
+  height:60px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.1);
+  background:rgba(255,255,255,.9);
+}
+
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+/* ===== ボタン ===== */
+.btn{
+  height:46px;
+  border:none;
+  border-radius:999px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.btn.pink{
+  background:linear-gradient(135deg,var(--pink1),var(--pink2));
+  color:#fff;
+}
+
+.btn.purple{
+  background:linear-gradient(135deg,var(--purple1),var(--purple2));
+  color:#fff;
+}
+
+.btn.sm{ height:38px; }
+
+/* ===== 円グラフ ===== */
+.chart{
+  width:260px;
+  margin:0 auto;
+}
+
+canvas{ display:block; margin:auto; }
+
+/* ===== ボトムナビ ===== */
+.bottom-nav{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  padding:12px env(safe-area-inset-bottom);
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(12px);
+  border-top:1px solid rgba(0,0,0,.08);
+}
+
+.bottom-nav .inner{
+  max-width:520px;
+  margin:auto;
+  display:flex;
+  gap:12px;
+}
+
+.nav-btn{
+  flex:1;
+  height:54px;
+  border:none;
+  border-radius:28px;
+  font-weight:900;
+  color:#fff;
+}
+
+.nav-btn.add{
+  background:linear-gradient(135deg,var(--pink1),var(--pink2));
+}
+
+.nav-btn.manage{
+  background:linear-gradient(135deg,var(--purple1),var(--purple2));
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="header">
-      <div class="title">家計簿</div>
-      <div class="pill" aria-label="月切替">
-        <button id="btnPrev" type="button">← 先月</button>
-        <div class="ym" id="ymLabel">----</div>
-        <button id="btnNext" type="button">来月 →</button>
-      </div>
-    </div>
+<div class="wrap">
 
-    <!-- ====== Dashboard / Chart ====== -->
-    <div class="grid">
-
-      <div class="card">
-        <div class="card-hd">
-          <h2>今月の支払い（カテゴリ別）</h2>
-          <div class="muted" id="monthTotal">合計：¥0</div>
-        </div>
-        <div class="card-bd">
-          <div class="chart-wrap">
-            <div class="chart">
-              <canvas id="pie" width="320" height="320" aria-label="円グラフ" role="img"></canvas>
-            </div>
-            <div class="legend" id="legend"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-hd">
-          <h2>今月の合計（銀行別 / カード別）</h2>
-          <div class="muted">同じ画面で確認</div>
-        </div>
-        <div class="card-bd">
-          <div class="two">
-            <div>
-              <div class="row" style="justify-content:space-between;">
-                <div class="badge purple">銀行</div>
-                <div class="yen" id="bankAllTotal">¥0</div>
-              </div>
-              <div class="hr"></div>
-              <div class="list" id="bankTotalsList"></div>
-            </div>
-            <div>
-              <div class="row" style="justify-content:space-between;">
-                <div class="badge pink">カード</div>
-                <div class="yen" id="cardAllTotal">¥0</div>
-              </div>
-              <div class="hr"></div>
-              <div class="list" id="cardTotalsList"></div>
-            </div>
-          </div>
-          <div class="hr"></div>
-          <div class="row" style="justify-content:space-between;">
-            <div class="badge">現金</div>
-            <div class="yen" id="cashTotal">¥0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ====== Add Entry ====== -->
-      <div class="card" id="addCard">
-        <div class="card-hd">
-          <h2>明細を追加</h2>
-          <div class="muted">追加した明細の月に自動で移動します</div>
-        </div>
-        <div class="card-bd">
-          <div class="two">
-            <div>
-              <label>日付</label>
-              <input id="date" type="date" />
-            </div>
-            <div>
-              <label>金額（円）</label>
-              <input id="amount" type="number" inputmode="numeric" placeholder="例：3500" />
-            </div>
-          </div>
-
-          <div style="height:10px"></div>
-
-          <div class="two">
-            <div>
-              <label>カテゴリ</label>
-              <select id="category"></select>
-            </div>
-            <div>
-              <label>支払い方法</label>
-              <select id="payType">
-                <option value="cash">現金</option>
-                <option value="bank">銀行</option>
-                <option value="card">カード</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="height:10px"></div>
-
-          <div class="two">
-            <div id="bankWrap" style="display:none;">
-              <label>銀行（選択）</label>
-              <select id="bankSelect"></select>
-            </div>
-            <div id="cardWrap" style="display:none;">
-              <label>カード会社（選択）</label>
-              <select id="cardSelect"></select>
-            </div>
-          </div>
-
-          <div style="height:10px"></div>
-
-          <div>
-            <label>メモ（任意）</label>
-            <input id="memo" type="text" placeholder="例：ドラッグストア / ランチ など" />
-          </div>
-
-          <div style="height:12px"></div>
-
-          <button class="btn pink" id="btnAddEntry" type="button">＋ 追加</button>
-        </div>
-      </div>
-
-      <!-- ====== Entries List ====== -->
-      <div class="card" id="entriesCard">
-        <div class="card-hd">
-          <h2>今月の明細</h2>
-          <div class="muted" id="entriesCount">0件</div>
-        </div>
-        <div class="card-bd">
-          <div class="list" id="entriesList"></div>
-          <div class="hr"></div>
-          <div class="footer-actions">
-            <button class="btn ghost sm" id="btnExport" type="button">📤 CSV出力</button>
-            <button class="btn red sm" id="btnClearMonth" type="button">🗑 今月の明細を全削除</button>
-          </div>
-          <div class="muted" style="margin-top:8px;">
-            ※ iPhoneのSafariで「履歴とWebサイトデータを消去」するとデータが消えることがあります。CSV出力でバックアップ推奨。
-          </div>
-        </div>
-      </div>
-
-      <!-- ====== Manage ====== -->
-      <div class="card" id="manageCard" style="display:none;">
-        <div class="card-hd">
-          <h2>管理</h2>
-          <div class="muted">カテゴリ / 銀行 / カード会社を追加できます</div>
-        </div>
-        <div class="card-bd">
-          <div class="tabs" role="tablist">
-            <div class="tab active" data-tab="cat">🏷️ カテゴリ管理</div>
-            <div class="tab" data-tab="bank">🏦 銀行管理</div>
-            <div class="tab" data-tab="card">💳 カード管理</div>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <!-- Categories -->
-          <div id="tab-cat">
-            <div class="two">
-              <div>
-                <label>絵文字</label>
-                <input id="catEmoji" type="text" placeholder="例：🌿" />
-              </div>
-              <div>
-                <label>カテゴリ名</label>
-                <input id="catName" type="text" placeholder="例：日用品" />
-              </div>
-            </div>
-            <div style="height:10px"></div>
-            <button class="btn pink" id="btnAddCategory" type="button">＋ カテゴリ追加</button>
-            <div class="hr"></div>
-            <div class="list" id="categoriesList"></div>
-          </div>
-
-          <!-- Banks -->
-          <div id="tab-bank" style="display:none;">
-            <div class="row stack">
-              <div>
-                <label>銀行名</label>
-                <input id="bankName" type="text" placeholder="例：三菱UFJ銀行" />
-              </div>
-              <button class="btn purple" id="btnAddBank" type="button">＋ 銀行追加</button>
-            </div>
-            <div class="hr"></div>
-            <div class="list" id="banksList"></div>
-          </div>
-
-          <!-- Cards -->
-          <div id="tab-card" style="display:none;">
-            <div class="row stack">
-              <div>
-                <label>カード会社名</label>
-                <input id="cardName" type="text" placeholder="例：楽天カード" />
-              </div>
-              <button class="btn purple" id="btnAddCardCo" type="button">＋ カード会社追加</button>
-            </div>
-            <div class="hr"></div>
-            <div class="list" id="cardsList"></div>
-          </div>
-
-          <div class="hr"></div>
-          <div class="footer-actions">
-            <button class="btn ghost sm" id="btnExportAll" type="button">📦 全データJSON出力</button>
-            <button class="btn red sm" id="btnResetAll" type="button">⚠️ 全データ初期化</button>
-          </div>
-        </div>
-      </div>
-
+  <div class="header">
+    <div class="title">家計簿</div>
+    <div class="pill">
+      <button id="prev">←</button>
+      <div class="ym" id="ym"></div>
+      <button id="next">→</button>
     </div>
   </div>
 
-  <!-- Bottom nav -->
-  <div class="bottom-nav">
-    <div class="inner">
-      <button id="navAdd" class="nav-btn add active" type="button">＋ 入力</button>
-      <button id="navManage" class="nav-btn manage" type="button">⚙️ 管理</button>
+  <div class="card">
+    <div class="card-hd">
+      <strong>今月の支払い</strong>
+      <span class="muted" id="total">¥0</span>
+    </div>
+    <div class="card-bd">
+      <div class="chart">
+        <canvas id="pie"></canvas>
+      </div>
     </div>
   </div>
 
-  <div class="toast" id="toast">保存しました</div>
+  <div class="card">
+    <div class="card-hd">
+      <strong>明細を追加</strong>
+    </div>
+    <div class="card-bd">
+      <div class="two">
+        <div>
+          <label>日付</label>
+          <input type="date" id="date">
+        </div>
+        <div>
+          <label>金額（円）</label>
+          <input type="number" id="amount" placeholder="例：3500">
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <button class="btn pink" style="width:100%">＋ 追加</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <div class="inner">
+    <button class="nav-btn add">＋ 入力</button>
+    <button class="nav-btn manage">⚙ 管理</button>
+  </div>
+</div>
 
 <script>
-(() => {
-  // ===== Utilities =====
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-  const $ = (sel, root=document) => root.querySelector(sel);
-
-  const fmtYen = (n) => "¥" + (Math.round(n || 0)).toLocaleString("ja-JP");
-  const pad2 = (n) => String(n).padStart(2, "0");
-  const toYM = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
-  const parseYM = (ym) => {
-    const [y,m] = ym.split("-").map(Number);
-    return new Date(y, (m-1), 1);
-  };
-  const addMonths = (ym, delta) => {
-    const d = parseYM(ym);
-    d.setMonth(d.getMonth()+delta);
-    return toYM(d);
-  };
-  const clampStr = (s) => (s ?? "").toString().trim();
-
-  // ===== Storage =====
-  const KEY = "kakeibo_gf_v1";
-
-  const defaultData = () => ({
-    version: 1,
-    categories: [
-      { id: "cat_food", name: "食費", emoji: "🍚" },
-      { id: "cat_trans", name: "交通", emoji: "🚃" },
-      { id: "cat_shop", name: "買い物", emoji: "🛍️" },
-      { id: "cat_home", name: "家", emoji: "🏠" },
-      { id: "cat_gift", name: "プレゼント", emoji: "🎁" },
-      { id: "cat_beauty", name: "美容", emoji: "💄" },
-      { id: "cat_do", name: "doTERRA", emoji: "🌿" },
-    ],
-    banks: [
-      { id: "bank_ufj", name: "三菱UFJ銀行" },
-      { id: "bank_nagoya", name: "名古屋銀行" },
-      { id: "bank_seto", name: "瀬戸銀行" },
-    ],
-    cards: [
-      { id: "card_rakuten", name: "楽天カード" },
-      { id: "card_jcb", name: "JCB" },
-    ],
-    entries: []
-  });
-
-  const load = () => {
-    try{
-      const raw = localStorage.getItem(KEY);
-      if(!raw) return defaultData();
-      const d = JSON.parse(raw);
-      if(!d || typeof d !== "object") return defaultData();
-      if(!Array.isArray(d.categories)) d.categories = defaultData().categories;
-      if(!Array.isArray(d.banks)) d.banks = defaultData().banks;
-      if(!Array.isArray(d.cards)) d.cards = defaultData().cards;
-      if(!Array.isArray(d.entries)) d.entries = [];
-      return d;
-    }catch(e){
-      return defaultData();
-    }
-  };
-
-  const save = () => {
-    localStorage.setItem(KEY, JSON.stringify(state.data));
-    toast("保存しました");
-  };
-
-  const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
-
-  // ===== State =====
-  const state = {
-    data: load(),
-    ym: toYM(new Date()),
-    view: "add",
-  };
-
-  // ===== Elements =====
-  const el = {
-    ymLabel: $("#ymLabel"),
-    btnPrev: $("#btnPrev"),
-    btnNext: $("#btnNext"),
-
-    date: $("#date"),
-    amount: $("#amount"),
-    category: $("#category"),
-    payType: $("#payType"),
-    bankWrap: $("#bankWrap"),
-    bankSelect: $("#bankSelect"),
-    cardWrap: $("#cardWrap"),
-    cardSelect: $("#cardSelect"),
-    memo: $("#memo"),
-    btnAddEntry: $("#btnAddEntry"),
-
-    entriesList: $("#entriesList"),
-    entriesCount: $("#entriesCount"),
-    monthTotal: $("#monthTotal"),
-    pie: $("#pie"),
-    legend: $("#legend"),
-
-    bankTotalsList: $("#bankTotalsList"),
-    cardTotalsList: $("#cardTotalsList"),
-    bankAllTotal: $("#bankAllTotal"),
-    cardAllTotal: $("#cardAllTotal"),
-    cashTotal: $("#cashTotal"),
-
-    btnExport: $("#btnExport"),
-    btnClearMonth: $("#btnClearMonth"),
-
-    manageCard: $("#manageCard"),
-    addCard: $("#addCard"),
-    entriesCard: $("#entriesCard"),
-    tabs: $$(".tab"),
-    tabCat: $("#tab-cat"),
-    tabBank: $("#tab-bank"),
-    tabCard: $("#tab-card"),
-
-    catEmoji: $("#catEmoji"),
-    catName: $("#catName"),
-    btnAddCategory: $("#btnAddCategory"),
-    categoriesList: $("#categoriesList"),
-
-    bankName: $("#bankName"),
-    btnAddBank: $("#btnAddBank"),
-    banksList: $("#banksList"),
-
-    cardName: $("#cardName"),
-    btnAddCardCo: $("#btnAddCardCo"),
-    cardsList: $("#cardsList"),
-
-    btnExportAll: $("#btnExportAll"),
-    btnResetAll: $("#btnResetAll"),
-
-    navAdd: $("#navAdd"),
-    navManage: $("#navManage"),
-
-    toast: $("#toast"),
-  };
-
-  // ===== Toast =====
-  let toastTimer = null;
-  const toast = (msg) => {
-    el.toast.textContent = msg;
-    el.toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.toast.classList.remove("show"), 1200);
-  };
-
-  // ===== Render Helpers =====
-  const getMonthEntries = (ym) => state.data.entries
-    .filter(e => e.ym === ym)
-    .sort((a,b) => (a.date > b.date ? -1 : 1));
-
-  const findCat = (id) => state.data.categories.find(c => c.id === id);
-  const findBank = (id) => state.data.banks.find(b => b.id === id);
-  const findCard = (id) => state.data.cards.find(c => c.id === id);
-
-  const ensureSelectOptions = () => {
-    el.category.innerHTML = state.data.categories
-      .map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`)
-      .join("");
-
-    el.bankSelect.innerHTML = state.data.banks
-      .map(b => `<option value="${b.id}">${b.name}</option>`)
-      .join("");
-    el.cardSelect.innerHTML = state.data.cards
-      .map(c => `<option value="${c.id}">${c.name}</option>`)
-      .join("");
-  };
-
-  const renderMonthLabel = () => {
-    const d = parseYM(state.ym);
-    el.ymLabel.textContent = `${d.getFullYear()}年${d.getMonth()+1}月`;
-  };
-
-  const setPayTypeUI = () => {
-    const t = el.payType.value;
-    el.bankWrap.style.display = (t === "bank") ? "" : "none";
-    el.cardWrap.style.display = (t === "card") ? "" : "none";
-  };
-
-  // ===== Pie Chart (Canvas) =====
-  const palette = [
-    "#3aa0ff", "#ff7eb3", "#5f61ff", "#ffb74a",
-    "#41c7b9", "#ff6b6b", "#9cdb5b", "#b47cff",
-    "#ffa6d5", "#66d1ff", "#ffd66b", "#7dffb2"
-  ];
-
-  const drawPie = (segments) => {
-    const canvas = el.pie;
-    const ctx = canvas.getContext("2d");
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0,0,w,h);
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(w/2,h/2, Math.min(w,h)*0.46, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,.95)";
-    ctx.fill();
-    ctx.restore();
-
-    const total = segments.reduce((s,x)=>s+x.value,0);
-    if(total <= 0){
-      ctx.save();
-      ctx.fillStyle = "rgba(0,0,0,.35)";
-      ctx.font = "900 16px ui-sans-serif, system-ui";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("まだ明細がありません", w/2, h/2);
-      ctx.restore();
-      return;
-    }
-
-    let start = -Math.PI/2;
-    const cx = w/2, cy = h/2;
-    const r = Math.min(w,h)*0.42;
-
-    segments.forEach((seg) => {
-      const angle = (seg.value / total) * Math.PI*2;
-      const end = start + angle;
-
-      ctx.beginPath();
-      ctx.moveTo(cx,cy);
-      ctx.arc(cx,cy,r,start,end);
-      ctx.closePath();
-      ctx.fillStyle = seg.color;
-      ctx.fill();
-
-      ctx.strokeStyle = "rgba(255,255,255,.9)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      start = end;
-    });
-
-    ctx.beginPath();
-    ctx.arc(cx,cy,r*0.58,0,Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,.98)";
-    ctx.fill();
-
-    ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,.75)";
-    ctx.font = "900 18px ui-sans-serif, system-ui";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("合計", cx, cy-10);
-    ctx.font = "900 18px ui-sans-serif, system-ui";
-    ctx.fillStyle = "#ff4d9d";
-    ctx.fillText(fmtYen(total), cx, cy+14);
-    ctx.restore();
-  };
-
-  const renderLegend = (segments) => {
-    const total = segments.reduce((s,x)=>s+x.value,0);
-    el.legend.innerHTML = segments
-      .filter(s => s.value > 0)
-      .sort((a,b)=>b.value-a.value)
-      .slice(0,10)
-      .map(s => {
-        const pct = total>0 ? Math.round((s.value/total)*100) : 0;
-        return `
-          <div class="leg-row">
-            <div class="leg-left">
-              <span class="dot" style="background:${s.color}"></span>
-              <div class="leg-name">${s.emoji} ${s.name}</div>
-            </div>
-            <div class="leg-val">${fmtYen(s.value)} <span class="muted">(${pct}%)</span></div>
-          </div>
-        `;
-      }).join("");
-    if(!el.legend.innerHTML){
-      el.legend.innerHTML = `<div class="muted">※ 明細を追加するとカテゴリ別の円グラフが出ます</div>`;
-    }
-  };
-
-  // ===== Totals (bank/card/cash) =====
-  const renderTotals = (entries) => {
-    let cash = 0;
-    const bankMap = new Map();
-    const cardMap = new Map();
-
-    entries.forEach(e => {
-      if(e.payType === "cash") cash += e.amount;
-      if(e.payType === "bank" && e.bankId){
-        bankMap.set(e.bankId, (bankMap.get(e.bankId)||0) + e.amount);
-      }
-      if(e.payType === "card" && e.cardId){
-        cardMap.set(e.cardId, (cardMap.get(e.cardId)||0) + e.amount);
-      }
-    });
-
-    const bankRows = state.data.banks.map(b => ({
-      id: b.id, name: b.name, value: bankMap.get(b.id)||0
-    })).filter(x => x.value>0).sort((a,b)=>b.value-a.value);
-
-    const cardRows = state.data.cards.map(c => ({
-      id: c.id, name: c.name, value: cardMap.get(c.id)||0
-    })).filter(x => x.value>0).sort((a,b)=>b.value-a.value);
-
-    const bankTotal = bankRows.reduce((s,x)=>s+x.value,0);
-    const cardTotal = cardRows.reduce((s,x)=>s+x.value,0);
-
-    el.cashTotal.textContent = fmtYen(cash);
-    el.bankAllTotal.textContent = fmtYen(bankTotal);
-    el.cardAllTotal.textContent = fmtYen(cardTotal);
-
-    el.bankTotalsList.innerHTML = bankRows.length
-      ? bankRows.map(r => `
-        <div class="item">
-          <div class="left">
-            <div class="emoji">🏦</div>
-            <div style="min-width:0">
-              <div class="name">${r.name}</div>
-              <div class="sub">今月合計</div>
-            </div>
-          </div>
-          <div class="right"><div class="yen">${fmtYen(r.value)}</div></div>
-        </div>
-      `).join("")
-      : `<div class="muted">今月は銀行払いがまだありません</div>`;
-
-    el.cardTotalsList.innerHTML = cardRows.length
-      ? cardRows.map(r => `
-        <div class="item">
-          <div class="left">
-            <div class="emoji">💳</div>
-            <div style="min-width:0">
-              <div class="name">${r.name}</div>
-              <div class="sub">今月合計</div>
-            </div>
-          </div>
-          <div class="right"><div class="yen">${fmtYen(r.value)}</div></div>
-        </div>
-      `).join("")
-      : `<div class="muted">今月はカード払いがまだありません</div>`;
-  };
-
-  // ===== Render Entries =====
-  const renderEntries = (entries) => {
-    el.entriesCount.textContent = `${entries.length}件`;
-    if(entries.length === 0){
-      el.entriesList.innerHTML = `<div class="muted">※ まだ明細がありません。下の「明細を追加」から入力してね。</div>`;
-      return;
-    }
-    el.entriesList.innerHTML = entries.map(e => {
-      const cat = findCat(e.categoryId) || {name:"(不明)", emoji:"❓"};
-      let payBadge = "";
-      if(e.payType === "cash"){
-        payBadge = `<span class="badge">現金</span>`;
-      }else if(e.payType === "bank"){
-        const b = findBank(e.bankId);
-        payBadge = `<span class="badge purple">${b ? b.name : "銀行"}</span>`;
-      }else if(e.payType === "card"){
-        const c = findCard(e.cardId);
-        payBadge = `<span class="badge pink">${c ? c.name : "カード"}</span>`;
-      }
-      return `
-        <div class="item">
-          <div class="left">
-            <div class="emoji">${cat.emoji}</div>
-            <div style="min-width:0">
-              <div class="name">${cat.name}</div>
-              <div class="sub">${e.date}${e.memo ? " ・ " + escapeHtml(e.memo) : ""}</div>
-            </div>
-          </div>
-          <div class="right">
-            ${payBadge}
-            <div class="yen">${fmtYen(e.amount)}</div>
-            <button class="btn red sm" data-del="${e.id}" type="button">削除</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    $$("#entriesList [data-del]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-del");
-        state.data.entries = state.data.entries.filter(x => x.id !== id);
-        save();
-        renderAll();
-      });
-    });
-  };
-
-  const escapeHtml = (s) => (s ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-  // ===== Manage Lists =====
-  const renderCategoriesManage = () => {
-    el.categoriesList.innerHTML = state.data.categories.map(c => {
-      const used = state.data.entries.filter(e => e.categoryId === c.id).length;
-      const disable = (state.data.categories.length <= 1);
-      return `
-        <div class="item">
-          <div class="left">
-            <div class="emoji">${c.emoji}</div>
-            <div style="min-width:0">
-              <div class="name">${c.name}</div>
-              <div class="sub">使った回数：${used}</div>
-            </div>
-          </div>
-          <div class="right">
-            <button class="btn red sm" data-delcat="${c.id}" type="button" ${disable ? "disabled" : ""}>削除</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    $$("#categoriesList [data-delcat]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-delcat");
-        const used = state.data.entries.some(e => e.categoryId === id);
-        if(used){ toast("このカテゴリは明細で使われています"); return; }
-        state.data.categories = state.data.categories.filter(x => x.id !== id);
-        save();
-        ensureSelectOptions();
-        renderAll();
-      });
-    });
-  };
-
-  const renderBanksManage = () => {
-    el.banksList.innerHTML = state.data.banks.map(b => {
-      const used = state.data.entries.filter(e => e.bankId === b.id).length;
-      return `
-        <div class="item">
-          <div class="left">
-            <div class="emoji">🏦</div>
-            <div style="min-width:0">
-              <div class="name">${b.name}</div>
-              <div class="sub">使った回数：${used}</div>
-            </div>
-          </div>
-          <div class="right">
-            <button class="btn red sm" data-delbank="${b.id}" type="button">削除</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    $$("#banksList [data-delbank]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-delbank");
-        const used = state.data.entries.some(e => e.bankId === id);
-        if(used){ toast("この銀行は明細で使われています"); return; }
-        state.data.banks = state.data.banks.filter(x => x.id !== id);
-        save();
-        ensureSelectOptions();
-        renderAll();
-      });
-    });
-  };
-
-  const renderCardsManage = () => {
-    el.cardsList.innerHTML = state.data.cards.map(c => {
-      const used = state.data.entries.filter(e => e.cardId === c.id).length;
-      return `
-        <div class="item">
-          <div class="left">
-            <div class="emoji">💳</div>
-            <div style="min-width:0">
-              <div class="name">${c.name}</div>
-              <div class="sub">使った回数：${used}</div>
-            </div>
-          </div>
-          <div class="right">
-            <button class="btn red sm" data-delcard="${c.id}" type="button">削除</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    $$("#cardsList [data-delcard]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-delcard");
-        const used = state.data.entries.some(e => e.cardId === id);
-        if(used){ toast("このカードは明細で使われています"); return; }
-        state.data.cards = state.data.cards.filter(x => x.id !== id);
-        save();
-        ensureSelectOptions();
-        renderAll();
-      });
-    });
-  };
-
-  // ===== Render All =====
-  const renderAll = () => {
-    renderMonthLabel();
-    ensureSelectOptions();
-    setPayTypeUI();
-
-    if(!el.date.value){
-      const t = new Date();
-      el.date.value = `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())}`;
-    }
-
-    const entries = getMonthEntries(state.ym);
-    const monthSum = entries.reduce((s,e)=>s+e.amount,0);
-    el.monthTotal.textContent = `合計：${fmtYen(monthSum)}`;
-
-    const catSum = new Map();
-    entries.forEach(e => {
-      catSum.set(e.categoryId, (catSum.get(e.categoryId)||0) + e.amount);
-    });
-    const segments = state.data.categories.map((c, idx) => ({
-      id: c.id,
-      name: c.name,
-      emoji: c.emoji,
-      value: catSum.get(c.id) || 0,
-      color: palette[idx % palette.length],
-    })).filter(s => s.value > 0);
-
-    drawPie(segments);
-    renderLegend(segments);
-    renderTotals(entries);
-    renderEntries(entries);
-
-    renderCategoriesManage();
-    renderBanksManage();
-    renderCardsManage();
-
-    if(state.view === "manage"){
-      el.manageCard.style.display = "";
-      el.addCard.style.display = "none";
-      el.entriesCard.style.display = "none";
-      el.navManage.classList.add("active");
-      el.navAdd.classList.remove("active");
-    }else{
-      el.manageCard.style.display = "none";
-      el.addCard.style.display = "";
-      el.entriesCard.style.display = "";
-      el.navAdd.classList.add("active");
-      el.navManage.classList.remove("active");
-    }
-  };
-
-  // ===== Actions =====
-  const gotoYM = (ym) => { state.ym = ym; renderAll(); };
-
-  const addEntry = () => {
-    const date = el.date.value;
-    const amount = Number(el.amount.value);
-    const categoryId = el.category.value;
-    const payType = el.payType.value;
-    const memo = clampStr(el.memo.value);
-
-    if(!date){ toast("日付を入れてね"); return; }
-    if(!Number.isFinite(amount) || amount <= 0){ toast("金額を入れてね"); return; }
-
-    const ym = date.slice(0,7);
-    const entry = {
-      id: uid(),
-      date,
-      ym,
-      amount: Math.round(amount),
-      categoryId,
-      payType,
-      memo
-    };
-    if(payType === "bank") entry.bankId = el.bankSelect.value || null;
-    if(payType === "card") entry.cardId = el.cardSelect.value || null;
-
-    state.data.entries.push(entry);
-    save();
-
-    el.amount.value = "";
-    el.memo.value = "";
-    state.ym = ym;
-    toast("追加しました");
-    renderAll();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const addCategory = () => {
-    const emoji = clampStr(el.catEmoji.value) || "✨";
-    const name = clampStr(el.catName.value);
-    if(!name){ toast("カテゴリ名を入れてね"); return; }
-    if(state.data.categories.some(c => c.name.toLowerCase() === name.toLowerCase())){
-      toast("同じ名前のカテゴリがあるよ"); return;
-    }
-    state.data.categories.push({ id: "cat_" + uid(), name, emoji });
-    el.catEmoji.value = "";
-    el.catName.value = "";
-    save();
-    ensureSelectOptions();
-    renderAll();
-    toast("カテゴリを追加しました");
-  };
-
-  const addBank = () => {
-    const name = clampStr(el.bankName.value);
-    if(!name){ toast("銀行名を入れてね"); return; }
-    if(state.data.banks.some(b => b.name.toLowerCase() === name.toLowerCase())){
-      toast("同じ銀行名があるよ"); return;
-    }
-    state.data.banks.push({ id: "bank_" + uid(), name });
-    el.bankName.value = "";
-    save();
-    ensureSelectOptions();
-    renderAll();
-    toast("銀行を追加しました");
-  };
-
-  const addCardCo = () => {
-    const name = clampStr(el.cardName.value);
-    if(!name){ toast("カード会社名を入れてね"); return; }
-    if(state.data.cards.some(c => c.name.toLowerCase() === name.toLowerCase())){
-      toast("同じカード会社名があるよ"); return;
-    }
-    state.data.cards.push({ id: "card_" + uid(), name });
-    el.cardName.value = "";
-    save();
-    ensureSelectOptions();
-    renderAll();
-    toast("カード会社を追加しました");
-  };
-
-  const exportCSV = () => {
-    const entries = getMonthEntries(state.ym).slice().reverse();
-    const header = ["date","amount","category","payType","bank","card","memo"];
-    const rows = entries.map(e => {
-      const cat = findCat(e.categoryId);
-      const bank = e.bankId ? findBank(e.bankId) : null;
-      const card = e.cardId ? findCard(e.cardId) : null;
-      return [
-        e.date,
-        String(e.amount),
-        cat ? cat.name : "",
-        e.payType,
-        bank ? bank.name : "",
-        card ? card.name : "",
-        (e.memo || "").replaceAll('"','""')
-      ];
-    });
-    const csv = [header.join(","), ...rows.map(r => r.map(v => `"${String(v ?? "")}"`).join(","))].join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `kakeibo_${state.ym}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    toast("CSVを出力しました");
-  };
-
-  const exportAllJSON = () => {
-    const blob = new Blob([JSON.stringify(state.data, null, 2)], { type:"application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "kakeibo_backup.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    toast("バックアップを出力しました");
-  };
-
-  const clearMonth = () => {
-    const entries = getMonthEntries(state.ym);
-    if(entries.length === 0){ toast("今月は削除する明細がありません"); return; }
-    if(!confirm(`${state.ym} の明細を全て削除します。よろしいですか？`)) return;
-    state.data.entries = state.data.entries.filter(e => e.ym !== state.ym);
-    save();
-    renderAll();
-    toast("今月の明細を削除しました");
-  };
-
-  const resetAll = () => {
-    if(!confirm("全データを初期化します。よろしいですか？")) return;
-    if(!confirm("本当に初期化します。復元できません。OK？")) return;
-    state.data = defaultData();
-    save();
-    renderAll();
-    toast("初期化しました");
-  };
-
-  const setManageTab = (tab) => {
-    el.tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
-    el.tabCat.style.display = (tab === "cat") ? "" : "none";
-    el.tabBank.style.display = (tab === "bank") ? "" : "none";
-    el.tabCard.style.display = (tab === "card") ? "" : "none";
-  };
-
-  // ===== Events =====
-  el.btnPrev.addEventListener("click", () => gotoYM(addMonths(state.ym, -1)));
-  el.btnNext.addEventListener("click", () => gotoYM(addMonths(state.ym, +1)));
-
-  el.payType.addEventListener("change", setPayTypeUI);
-  el.btnAddEntry.addEventListener("click", addEntry);
-
-  el.btnAddCategory.addEventListener("click", addCategory);
-  el.btnAddBank.addEventListener("click", addBank);
-  el.btnAddCardCo.addEventListener("click", addCardCo);
-
-  el.btnExport.addEventListener("click", exportCSV);
-  el.btnExportAll.addEventListener("click", exportAllJSON);
-  el.btnClearMonth.addEventListener("click", clearMonth);
-  el.btnResetAll.addEventListener("click", resetAll);
-
-  el.tabs.forEach(t => t.addEventListener("click", () => setManageTab(t.dataset.tab)));
-
-  el.navAdd.addEventListener("click", () => {
-    state.view = "add";
-    renderAll();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-  el.navManage.addEventListener("click", () => {
-    state.view = "manage";
-    renderAll();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-
-  el.amount.addEventListener("keydown", (ev) => {
-    if(ev.key === "Enter"){ ev.preventDefault(); addEntry(); }
-  });
-
-  // Initial render
-  ensureSelectOptions();
-  setPayTypeUI();
-  renderAll();
-
-})();
+/* ===== Canvas ぼやけ完全対策 ===== */
+function resizeCanvas(canvas, size){
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.width = size + "px";
+  canvas.style.height = size + "px";
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return ctx;
+}
+
+const canvas = document.getElementById("pie");
+const ctx = resizeCanvas(canvas, 260);
+
+ctx.fillStyle="#ff7eb3";
+ctx.beginPath();
+ctx.moveTo(130,130);
+ctx.arc(130,130,100,0,Math.PI*2);
+ctx.fill();
+
+window.addEventListener("resize",()=>location.reload());
 </script>
 </body>
 </html>
